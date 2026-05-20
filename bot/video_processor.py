@@ -70,14 +70,15 @@ class VideoToPdf:
         return saved_images
 
     def images_to_pdf(self, image_paths, output_pdf_path):
-        """تجميع الصور في PDF باستخدام PyMuPDF"""
-        import fitz
-        doc = fitz.open()
-        for img_path in image_paths:
-            img = fitz.open(img_path)
-            rect = fitz.Rect(0, 0, img.width, img.height)
-            page = doc.new_page(width=img.width, height=img.height)
-            page.insert_image(rect, filename=img_path)
-            img.close()
-        doc.save(output_pdf_path)
-        doc.close()
+    import fitz
+    from PIL import Image as PILImage
+    doc = fitz.open()
+    for img_path in image_paths:
+        # نحضر الأبعاد من PIL
+        with PILImage.open(img_path) as pil_img:
+            width, height = pil_img.size
+        # ننشئ صفحة بنفس الأبعاد
+        page = doc.new_page(width=width, height=height)
+        page.insert_image(fitz.Rect(0, 0, width, height), filename=img_path)
+    doc.save(output_pdf_path)
+    doc.close()
